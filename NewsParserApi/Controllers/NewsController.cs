@@ -33,14 +33,13 @@ namespace NewsParserApi.Controllers
             htmlDoc.LoadHtml(html);
 
             var newsList = htmlDoc.DocumentNode.SelectNodes("//li");
-
             List<News> news = new List<News>();
 
             foreach (var element in newsList)
             {
                 news.Add(new News()
                 {
-                    ImageUrl = element.SelectSingleNode("img").Attributes["src"].Value.Replace("-150x150", "").Trim(),
+                    ImageUrl = element.SelectSingleNode("img")?.Attributes["src"].Value.Replace("-150x150", "").Trim(),
                     Title = element.SelectSingleNode("h3/a").InnerText.Trim(),
                     Url = element.SelectSingleNode("h3/a").Attributes["href"].Value.Trim(),
                     Text = element.SelectNodes("p")[1].InnerText.Trim(),

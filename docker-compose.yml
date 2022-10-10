@@ -8,10 +8,10 @@ services:
     container_name: news-db
     image: mcr.microsoft.com/mssql/server:2022-latest
     ports:
-      - 8002:1433
+      - 1433:1433
     environment: 
-      - ACCEPT_EULA=Y
-      - SA_PASSWORD=PAROL
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "Your_password123"
     networks:
       - newsapi
 
@@ -27,6 +27,6 @@ services:
     environment:
      - DB_HOST=newsdb
      - DB_NAME=NewsDb
-     - DB_SA_PASSWORD=PAROL     
+     - DB_SA_PASSWORD=Your_password123  
     networks:
       - newsapi

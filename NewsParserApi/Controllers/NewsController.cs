@@ -1,5 +1,6 @@
 ﻿using HtmlAgilityPack;
 using Microsoft.AspNetCore.Mvc;
+using NewsParserApi.Data;
 using NewsParserApi.Models;
 using System.Text.Json;
 using System.Web;
@@ -10,6 +11,13 @@ namespace NewsParserApi.Controllers
     [ApiController]
     public class NewsController : ControllerBase
     {
+        private readonly NewsApiDbContext _context;
+
+        public NewsController(NewsApiDbContext context)
+        {
+            _context = context;
+        }
+
         private static async Task<string> CallUrl(string fullUrl)
         {
             HttpClient client = new HttpClient();
@@ -21,10 +29,11 @@ namespace NewsParserApi.Controllers
         private string DeserializeAndDecodeHtml(string json)
         {
             var investorsWebApi = JsonSerializer.Deserialize<InvestorsWebApi>(json);
+
             if (investorsWebApi == null)
                 throw new ArgumentNullException();
 
-            return HttpUtility.HtmlDecode(investorsWebApi.html);
+            return HttpUtility.HtmlDecode(investorsWebApi.html) ?? "";
         }
 
         private List<News> ParseInvestorsHtml(string html) // Parser for https://www.investors.com/
@@ -58,6 +67,20 @@ namespace NewsParserApi.Controllers
             var response = CallUrl(url).Result;
             var news = ParseInvestorsHtml(DeserializeAndDecodeHtml(response));
             return news;
+        }
+
+        [HttpGet("fromDb")]
+        public ActionResult<List<News>> GetFromDB()
+        {
+            return _context.News.ToList();
+        }
+
+        [HttpPost]
+        public ActionResult<News> AddNews(News n)
+        {
+            _context.News.Add(n);
+            _context.SaveChanges();
+            return n;
         }
     }
 }

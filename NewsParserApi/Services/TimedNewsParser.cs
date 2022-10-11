@@ -1,5 +1,6 @@
 ﻿using HtmlAgilityPack;
 using NewsParserApi.Models;
+using NewsParserApi.Repositories;
 using System.Text.Json;
 using System.Web;
 
@@ -10,10 +11,12 @@ namespace NewsParserApi.Services
         private int executionCount = 0;
         private readonly ILogger<TimedNewsParser> _logger;
         private Timer? _timer = null;
+        private IBaseRepository<News> _newsRepository;
 
-        public TimedNewsParser(ILogger<TimedNewsParser> logger)
+        public TimedNewsParser(ILogger<TimedNewsParser> logger, IBaseRepository<News> newsRepository)
         {
             _logger = logger;
+            _newsRepository = newsRepository;
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
@@ -24,7 +27,6 @@ namespace NewsParserApi.Services
                 TimeSpan.FromHours(24)); // daily
             return Task.CompletedTask;
         }
-
 
         private static async Task<string> CallUrl(string fullUrl)
         {
@@ -80,8 +82,10 @@ namespace NewsParserApi.Services
         {
             var news = ParseInvestorsWebApp(1);
 
+            _newsRepository.AddRange(news);
+
             _logger.LogInformation(
-                "Timed Hosted Service is working. Count: {Count}", news);
+                "Timed Parser Service is working");
 
             Console.WriteLine("\n\n ==== AGA ===== \n\n");
         }

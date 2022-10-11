@@ -29,4 +29,4 @@ services:
      - DB_NAME=NewsDb
      - DB_SA_PASSWORD=Your_password123  
     networks:
-      - newsapi
+      - newsapi     

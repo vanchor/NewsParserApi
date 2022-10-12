@@ -14,7 +14,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 string connectionString;
-if(Environment.GetEnvironmentVariable("DB_HOST") != null) {
+if(Environment.GetEnvironmentVariable("DB_HOST") != null) 
+{
     var dbHost = Environment.GetEnvironmentVariable("DB_HOST");
     var dbName = Environment.GetEnvironmentVariable("DB_NAME");
     var dbPass = Environment.GetEnvironmentVariable("DB_SA_PASSWORD");

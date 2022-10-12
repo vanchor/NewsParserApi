@@ -13,10 +13,10 @@ namespace NewsParserApi.Services
         private Timer? _timer = null;
         private IBaseRepository<News> _newsRepository;
 
-        public TimedNewsParser(ILogger<TimedNewsParser> logger, IBaseRepository<News> newsRepository)
+        public TimedNewsParser(ILogger<TimedNewsParser> logger, IServiceScopeFactory factory)
         {
             _logger = logger;
-            _newsRepository = newsRepository;
+            _newsRepository = factory.CreateScope().ServiceProvider.GetRequiredService<IBaseRepository<News>>();
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
@@ -62,7 +62,7 @@ namespace NewsParserApi.Services
                     Title = element.SelectSingleNode("h3/a").InnerText.Trim(),
                     Url = element.SelectSingleNode("h3/a").Attributes["href"].Value.Trim(),
                     Text = element.SelectNodes("p")[1].InnerText.Trim(),
-                    Date = element.SelectNodes("p")[0].InnerText.Trim()
+                    Date = DateTime.Parse(element.SelectNodes("p")[0].InnerText.Trim())
                 });
             }
 
@@ -80,14 +80,26 @@ namespace NewsParserApi.Services
 
         private void DoWork(object? state)
         {
-            var news = ParseInvestorsWebApp(1);
+            var news = ParseInvestorsWebApp(10);
 
-            _newsRepository.AddRange(news);
+            News? lastNews = _newsRepository.GetAll().OrderByDescending(n => n.Date).FirstOrDefault();
+
+            if (lastNews != null)
+            {
+                foreach (var n in news)
+                {
+                    if (n.Title == lastNews.Title)
+                        break;
+                    _newsRepository.Add(n);
+                }
+            }
+            else
+                _newsRepository.AddRange(news);
 
             _logger.LogInformation(
                 "Timed Parser Service is working");
 
-            Console.WriteLine("\n\n ==== AGA ===== \n\n");
+            Console.WriteLine($"\n\n ==== Number of new news: 10 ===== \n\n");
         }
 
         public Task StopAsync(CancellationToken cancellationToken)

@@ -17,6 +17,8 @@ namespace NewsParserApi.Repositories
 
         public void Add(News entity)
         {
+            if (_context.News.Any(n => n.Title == entity.Title))
+                throw new ArgumentException("A news item with this title already exists.");
             _context.News.Add(entity);
             _context.SaveChanges();
         }

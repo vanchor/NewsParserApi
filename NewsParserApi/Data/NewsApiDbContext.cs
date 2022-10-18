@@ -26,5 +26,12 @@ namespace NewsParserApi.Data
                 Console.WriteLine(ex.Message);
             }
         }
+
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            builder.Entity<News>()
+                .HasIndex(u => u.Title)
+                .IsUnique();
+        }
     }
 }

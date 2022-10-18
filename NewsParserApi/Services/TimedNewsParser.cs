@@ -58,14 +58,13 @@ namespace NewsParserApi.Services
             {
                 news.Add(new News()
                 {
-                    ImageUrl = element.SelectSingleNode("img")?.Attributes["src"].Value.Replace("-150x150", "").Trim(),
                     Title = element.SelectSingleNode("h3/a").InnerText.Trim(),
+                    ImageUrl = element.SelectSingleNode("img")?.Attributes["src"].Value.Replace("-150x150", "").Trim(),
                     Url = element.SelectSingleNode("h3/a").Attributes["href"].Value.Trim(),
                     Text = element.SelectNodes("p")[1].InnerText.Trim(),
                     Date = DateTime.Parse(element.SelectNodes("p")[0].InnerText.Trim())
                 });
             }
-
             return news;
         }
 
@@ -80,26 +79,28 @@ namespace NewsParserApi.Services
 
         private void DoWork(object? state)
         {
+            int count = 0;
             var news = ParseInvestorsWebApp(10);
 
-            News? lastNews = _newsRepository.GetAll().OrderByDescending(n => n.Date).FirstOrDefault();
 
-            if (lastNews != null)
+            foreach (var n in news)
             {
-                foreach (var n in news)
+                try
                 {
-                    if (n.Title == lastNews.Title)
-                        break;
                     _newsRepository.Add(n);
+                    count++;
+                }
+                catch(ArgumentException ex)
+                {
+                    continue;
                 }
             }
-            else
-                _newsRepository.AddRange(news);
+
 
             _logger.LogInformation(
                 "Timed Parser Service is working");
 
-            Console.WriteLine($"\n\n ==== Number of new news: 10 ===== \n\n");
+            Console.WriteLine($"\n\n ==== Number of new news: {count} ===== \n\n");
         }
 
         public Task StopAsync(CancellationToken cancellationToken)

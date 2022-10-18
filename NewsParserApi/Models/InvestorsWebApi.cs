@@ -9,7 +9,7 @@
 
     public class InvestorsWebApi
     {
-        public string html { get; set; }
-        public Meta meta { get; set; }
+        public string? html { get; set; }
+        public Meta? meta { get; set; }
     }
 }

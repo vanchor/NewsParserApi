@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.2.32616.157
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NewsParserApi", "NewsParserApi\NewsParserApi.csproj", "{8CF64328-EFB9-4435-BB17-FA0DB992642E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NewsParserApi", "NewsParserApi\NewsParserApi.csproj", "{8CF64328-EFB9-4435-BB17-FA0DB992642E}"
+EndProject
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{14AD7A30-83AF-479F-BE60-8F60BF1E45A6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{8CF64328-EFB9-4435-BB17-FA0DB992642E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8CF64328-EFB9-4435-BB17-FA0DB992642E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8CF64328-EFB9-4435-BB17-FA0DB992642E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{14AD7A30-83AF-479F-BE60-8F60BF1E45A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{14AD7A30-83AF-479F-BE60-8F60BF1E45A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{14AD7A30-83AF-479F-BE60-8F60BF1E45A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{14AD7A30-83AF-479F-BE60-8F60BF1E45A6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

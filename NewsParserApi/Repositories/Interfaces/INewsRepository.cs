@@ -1,6 +1,6 @@
 ﻿using NewsParserApi.Models;
 
-namespace NewsParserApi.Repositories
+namespace NewsParserApi.Repositories.Interfaces
 {
     public interface INewsRepository : IBaseRepository<News>
     {

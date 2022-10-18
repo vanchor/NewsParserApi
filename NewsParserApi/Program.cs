@@ -1,7 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using NewsParserApi.Data;
 using NewsParserApi.Models;
-using NewsParserApi.Repositories;
+using NewsParserApi.Repositories.Implementations;
+using NewsParserApi.Repositories.Interfaces;
 using NewsParserApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -28,6 +29,7 @@ builder.Services.AddDbContext<NewsApiDbContext>(options =>
     options.UseSqlServer(connectionString));
 
 builder.Services.AddScoped<INewsRepository, NewsRepository>();
+builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 
 builder.Services.AddHostedService<TimedNewsParser>();
 

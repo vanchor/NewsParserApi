@@ -1,9 +1,6 @@
-﻿using HtmlAgilityPack;
-using Microsoft.AspNetCore.Mvc;
-using NewsParserApi.Data;
+﻿using Microsoft.AspNetCore.Mvc;
 using NewsParserApi.Models;
-using System.Text.Json;
-using System.Web;
+using NewsParserApi.Repositories.Interfaces;
 
 namespace NewsParserApi.Controllers
 {
@@ -11,32 +8,24 @@ namespace NewsParserApi.Controllers
     [ApiController]
     public class NewsController : ControllerBase
     {
-        private readonly NewsApiDbContext _context;
+        private readonly INewsRepository _newsRepository;
 
-        public NewsController(NewsApiDbContext context)
+        public NewsController(INewsRepository newsRepository)
         {
-            _context = context;
+            _newsRepository = newsRepository;
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<News>>> GetNews(int posts_per_page, int page = 0)
+        public ActionResult<IEnumerable<News>> GetNews(int posts_per_page, int page = 0)
         {
-            //if (_context.News.Count() == 0) 
-            //{
-            //    var news = ParseInvestorsWebApp(posts_per_page);
-            //    await _context.News.AddRangeAsync(news);
-            //    await _context.SaveChangesAsync();
-            //    return news;
-            //}
-
-            return _context.News.Take(posts_per_page).ToList();
+            return _newsRepository.GetAll().ToList();
         }
 
         [HttpPost]
         public ActionResult<News> AddNews(News n)
         {
-            _context.News.Add(n);
-            _context.SaveChanges();
+            _newsRepository.Add(n);
+            _newsRepository.SaveChanges();
             return n;
         }
     }

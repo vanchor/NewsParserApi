@@ -2,8 +2,9 @@
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using NewsParserApi.Data;
 using NewsParserApi.Models;
+using NewsParserApi.Repositories.Interfaces;
 
-namespace NewsParserApi.Repositories
+namespace NewsParserApi.Repositories.Implementations
 {
     public class NewsRepository : BaseRepository<News>, INewsRepository
     {
@@ -16,6 +17,6 @@ namespace NewsParserApi.Repositories
             if (_context.News.Any(n => n.Title == entity.Title))
                 throw new ArgumentException("A news item with this title already exists.");
             base.Add(entity);
-        } 
+        }
     }
 }

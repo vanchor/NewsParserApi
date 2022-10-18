@@ -1,11 +1,12 @@
 ﻿using NewsParserApi.Data;
 using NewsParserApi.Models;
+using NewsParserApi.Repositories.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Xml.Linq;
 
-namespace NewsParserApi.Repositories
+namespace NewsParserApi.Repositories.Implementations
 {
     public class BaseRepository<T> : IBaseRepository<T> where T : class
     {
@@ -19,13 +20,11 @@ namespace NewsParserApi.Repositories
         public void Add(T entity)
         {
             _context.Set<T>().Add(entity);
-            _context.SaveChanges();
         }
 
         public void AddRange(IEnumerable<T> entities)
         {
             _context.Set<T>().AddRange(entities);
-            _context.SaveChanges();
         }
 
         public IEnumerable<T> Find(Expression<Func<T, bool>> expression)
@@ -46,12 +45,16 @@ namespace NewsParserApi.Repositories
         public void Remove(T entity)
         {
             _context.Set<T>().Remove(entity);
-            _context.SaveChanges();
         }
 
         public void RemoveRange(IEnumerable<T> entities)
         {
             _context.Set<T>().RemoveRange(entities);
+        }
+
+        public void SaveChanges()
+        {
+            _context.SaveChanges();
         }
     }
 }

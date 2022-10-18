@@ -1,6 +1,6 @@
 ﻿using HtmlAgilityPack;
 using NewsParserApi.Models;
-using NewsParserApi.Repositories;
+using NewsParserApi.Repositories.Interfaces;
 using System.Text.Json;
 using System.Web;
 
@@ -96,6 +96,7 @@ namespace NewsParserApi.Services
                 }
             }
 
+            _newsRepository.SaveChanges();
 
             _logger.LogInformation(
                 "Timed Parser Service is working");

@@ -29,4 +29,8 @@
     <Folder Include="Migrations\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="docker-compose.dcproj" />
+  </ItemGroup>
+
 </Project>

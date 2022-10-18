@@ -27,7 +27,7 @@ else
 builder.Services.AddDbContext<NewsApiDbContext>(options =>
     options.UseSqlServer(connectionString));
 
-builder.Services.AddScoped<IBaseRepository<News>, NewsRepository>();
+builder.Services.AddScoped<INewsRepository, NewsRepository>();
 
 builder.Services.AddHostedService<TimedNewsParser>();
 

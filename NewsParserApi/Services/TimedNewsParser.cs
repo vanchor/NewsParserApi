@@ -11,12 +11,12 @@ namespace NewsParserApi.Services
         private int executionCount = 0;
         private readonly ILogger<TimedNewsParser> _logger;
         private Timer? _timer = null;
-        private IBaseRepository<News> _newsRepository;
+        private INewsRepository _newsRepository;
 
         public TimedNewsParser(ILogger<TimedNewsParser> logger, IServiceScopeFactory factory)
         {
             _logger = logger;
-            _newsRepository = factory.CreateScope().ServiceProvider.GetRequiredService<IBaseRepository<News>>();
+            _newsRepository = factory.CreateScope().ServiceProvider.GetRequiredService<INewsRepository>();
         }
 
         public Task StartAsync(CancellationToken cancellationToken)

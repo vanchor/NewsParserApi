@@ -18,5 +18,15 @@ namespace NewsParserApi.Repositories.Implementations
                 throw new ArgumentException("A news item with this title already exists.");
             base.Add(entity);
         }
+
+        public IEnumerable<News> GetWithPagination(int count, int page)
+        {
+            int skipCount = count * page;
+            return _context.News
+                        .OrderByDescending(n => n.Date)
+                        .Skip(skipCount)
+                        .Take(count)
+                        .ToList();
+        }
     }
 }

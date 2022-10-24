@@ -16,9 +16,9 @@ namespace NewsParserApi.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<News>> GetNews(int posts_per_page, int page = 0)
+        public ActionResult<IEnumerable<News>> GetNews(int count, int start = 0)
         {
-            return _newsRepository.GetWithPagination(posts_per_page, page).ToList();
+            return _newsRepository.GetWithPagination(count, start).ToList();
         }
 
         [HttpPost]

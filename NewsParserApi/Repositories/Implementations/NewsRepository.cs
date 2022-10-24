@@ -12,19 +12,27 @@ namespace NewsParserApi.Repositories.Implementations
         {
         }
 
-        public void Add(News entity)
+        public IEnumerable<News> AddNewsWithUniqueTitles(IEnumerable<News> news)
         {
-            if (_context.News.Any(n => n.Title == entity.Title))
-                throw new ArgumentException("A news item with this title already exists.");
-            base.Add(entity);
+            var titlesInDb = GetAllTitles();
+            var newsWithUniqueTitles = news.DistinctBy(x => x.Title);
+
+            newsWithUniqueTitles = newsWithUniqueTitles.Where( x => !titlesInDb.Contains(x.Title));
+            base.AddRange(newsWithUniqueTitles);
+
+            return newsWithUniqueTitles;
         }
 
-        public IEnumerable<News> GetWithPagination(int count, int page)
+        public IEnumerable<string> GetAllTitles()
         {
-            int skipCount = count * page;
+            return _context.News.Select(x => x.Title).ToList();
+        }
+
+        public IEnumerable<News> GetWithPagination(int count, int start)
+        {
             return _context.News
                         .OrderByDescending(n => n.Date)
-                        .Skip(skipCount)
+                        .Skip(start)
                         .Take(count)
                         .ToList();
         }

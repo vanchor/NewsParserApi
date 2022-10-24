@@ -17,6 +17,9 @@ namespace NewsParserApi.Services
         {
             _logger = logger;
             _newsRepository = factory.CreateScope().ServiceProvider.GetRequiredService<INewsRepository>();
+
+            if (_newsRepository.IsEmpty())
+                ParseAndSaveUniqueNews(300);
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
@@ -77,31 +80,23 @@ namespace NewsParserApi.Services
             return news;
         }
 
+        private async void ParseAndSaveUniqueNews(int requestCount)
+        {
+            var news = ParseInvestorsWebApp(requestCount);
+
+            var addedNews = _newsRepository.AddNewsWithUniqueTitles(news);
+            await _newsRepository.SaveChangesAsync();
+
+
+            _logger.LogInformation("--- Timed Parser Service made a request to https://www.investors.com/\n" +
+                                    $"--- Number of new news: {addedNews.Count()}");
+
+            Console.WriteLine($"\n\n ==== Number of new news: {addedNews.Count()} ===== \n\n");
+        }
+
         private void DoWork(object? state)
         {
-            int count = 0;
-            var news = ParseInvestorsWebApp(10);
-
-
-            foreach (var n in news)
-            {
-                try
-                {
-                    _newsRepository.Add(n);
-                    count++;
-                }
-                catch(ArgumentException ex)
-                {
-                    continue;
-                }
-            }
-
-            _newsRepository.SaveChanges();
-
-            _logger.LogInformation(
-                "Timed Parser Service is working");
-
-            Console.WriteLine($"\n\n ==== Number of new news: {count} ===== \n\n");
+            ParseAndSaveUniqueNews(10);
         }
 
         public Task StopAsync(CancellationToken cancellationToken)

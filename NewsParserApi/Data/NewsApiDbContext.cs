@@ -8,10 +8,10 @@ namespace NewsParserApi.Data
     public class NewsApiDbContext : DbContext
     {
         public DbSet<News> News { get; set; } = null!;
+        public DbSet<Comment> Comments { get; set; } = null!;
 
         public NewsApiDbContext(DbContextOptions<NewsApiDbContext> options) : base(options)
         {
-
             try
             {
                 var dbCreator = Database.GetService<IDatabaseCreator>() as RelationalDatabaseCreator;

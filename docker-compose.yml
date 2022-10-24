@@ -22,11 +22,12 @@ services:
       dockerfile: NewsParserApi/Dockerfile
     ports:
       - 8001:80
+      - 8002:443
     depends_on:
       - newsdb
     environment:
      - DB_HOST=newsdb
      - DB_NAME=NewsDb
-     - DB_SA_PASSWORD=Your_password123  
+     - DB_SA_PASSWORD=Your_password123 
     networks:
-      - newsapi     
+      - newsapi

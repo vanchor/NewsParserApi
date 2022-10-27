@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace NewsParserApi.Models
+namespace NewsParserApi.Models.UserDto
 {
     public class AuthenticateRequest
     {

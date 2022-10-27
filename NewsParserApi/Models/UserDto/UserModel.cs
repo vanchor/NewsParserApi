@@ -1,4 +1,4 @@
-﻿namespace NewsParserApi.Models
+﻿namespace NewsParserApi.Models.UserDto
 {
     public class UserModel
     {

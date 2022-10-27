@@ -1,5 +1,6 @@
 ﻿using NewsParserApi.Entities;
 using NewsParserApi.Models;
+using NewsParserApi.Models.UserDto;
 
 namespace NewsParserApi.Services
 {

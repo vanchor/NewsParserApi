@@ -66,20 +66,21 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-        .AddJwtBearer(options =>
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
         {
-            options.TokenValidationParameters = new TokenValidationParameters
-            {
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8
-                    .GetBytes(builder.Configuration.GetSection("AppSettings:Token").Value)),
-                ValidateIssuer = false,
-                ValidateAudience = false
-            };
-        });
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8
+                .GetBytes(builder.Configuration.GetSection("AppSettings:Token").Value)),
+            ValidateIssuer = false,
+            ValidateAudience = false
+        };
+    });
 
 var app = builder.Build();
 
+app.UseCors(MyAllowSpecificOrigins);
 app.UseCors(MyAllowSpecificOrigins);
 // Configure the HTTP request pipeline.
 app.UseSwagger();

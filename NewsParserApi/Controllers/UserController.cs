@@ -2,8 +2,9 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using NewsParserApi.Entities;
-using NewsParserApi.Models;
+using NewsParserApi.Models.UserDto;
 using NewsParserApi.Services;
+using System.Security.Claims;
 
 namespace NewsParserApi.Controllers
 {
@@ -42,7 +43,9 @@ namespace NewsParserApi.Controllers
         [HttpGet("Test"), Authorize]
         public ActionResult Test()
         {
-            return Ok("Dicki");
+            ClaimsPrincipal currentUser = this.User;
+            var currentUserName = currentUser.FindFirst(ClaimTypes.Name).Value;
+            return Ok(currentUserName);
         }
     }
 }

@@ -1,7 +1,8 @@
-﻿using NewsParserApi.Models;
-using NewsParserApi.Helpers;
+﻿using NewsParserApi.Helpers;
 using NewsParserApi.Entities;
 using NewsParserApi.Repositories.Interfaces;
+using NewsParserApi.Models.UserDto;
+using NewsParserApi.Models;
 
 namespace NewsParserApi.Services
 {

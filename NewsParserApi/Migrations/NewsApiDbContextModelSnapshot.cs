@@ -47,6 +47,33 @@ namespace NewsParserApi.Migrations
                     b.ToTable("Comments");
                 });
 
+            modelBuilder.Entity("NewsParserApi.Entities.LikeDislike", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<int>("NewsId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<bool>("isLike")
+                        .HasColumnType("bit");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NewsId");
+
+                    b.HasIndex("Username");
+
+                    b.ToTable("LikeDislike");
+                });
+
             modelBuilder.Entity("NewsParserApi.Entities.News", b =>
                 {
                     b.Property<int>("Id")
@@ -112,6 +139,25 @@ namespace NewsParserApi.Migrations
                         .IsRequired();
 
                     b.Navigation("CommentedNews");
+                });
+
+            modelBuilder.Entity("NewsParserApi.Entities.LikeDislike", b =>
+                {
+                    b.HasOne("NewsParserApi.Entities.News", "News")
+                        .WithMany()
+                        .HasForeignKey("NewsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("NewsParserApi.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("Username")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("News");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("NewsParserApi.Entities.News", b =>

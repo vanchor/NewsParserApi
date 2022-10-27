@@ -1,6 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using NewsParserApi.Entities;
+using NewsParserApi.Models.NewsDto;
 using NewsParserApi.Repositories.Interfaces;
+using System.Security.Claims;
 
 namespace NewsParserApi.Controllers
 {
@@ -16,12 +19,39 @@ namespace NewsParserApi.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<News>> GetNews(int count, int start = 0)
+        public ActionResult<IEnumerable<NewsPreviewList>> GetNews(int count, int start = 0)
         {
-            return _newsRepository.GetWithPagination(count, start).ToList();
+            string currentUsername = null;
+            if (User.Identity.IsAuthenticated)
+            {
+                ClaimsPrincipal currentUser = User;
+                currentUsername = currentUser.FindFirst(ClaimTypes.Name).Value;
+            }
+
+            
+            return _newsRepository.GetWithPagination(count, start, currentUsername).ToList();
         }
 
-        [HttpPost]
+        [HttpPost("{id}/likeDislike")]
+        public ActionResult LikeNews(int id, bool isLike)
+        {
+            ClaimsPrincipal currentUser = this.User;
+            var currentUserName = currentUser.FindFirst(ClaimTypes.Name).Value;
+
+            try
+            {
+                _newsRepository.LikeNews(id, currentUserName, isLike);
+                _newsRepository.SaveChanges();
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+            return Ok();
+        }
+
+        [HttpPost, Authorize]
         public ActionResult<News> AddNews(News n)
         {
             _newsRepository.Add(n);

@@ -1,6 +1,6 @@
 ﻿using NewsParserApi.Entities;
 
-namespace NewsParserApi.Models
+namespace NewsParserApi.Models.UserDto
 {
     public class AuthenticateResponse
     {

@@ -1,4 +1,5 @@
 ﻿using HtmlAgilityPack;
+using NewsParserApi.Entities;
 using NewsParserApi.Models;
 using NewsParserApi.Repositories.Interfaces;
 using System.Text.Json;

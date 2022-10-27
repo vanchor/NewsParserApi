@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
-using NewsParserApi.Models;
+using NewsParserApi.Entities;
 
 namespace NewsParserApi.Data
 {
@@ -9,6 +9,7 @@ namespace NewsParserApi.Data
     {
         public DbSet<News> News { get; set; } = null!;
         public DbSet<Comment> Comments { get; set; } = null!;
+        public DbSet<User> Users { get; set; } = null!;
 
         public NewsApiDbContext(DbContextOptions<NewsApiDbContext> options) : base(options)
         {

@@ -1,4 +1,4 @@
-﻿namespace NewsParserApi.Models
+﻿namespace NewsParserApi.Entities
 {
     public class Comment
     {

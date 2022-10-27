@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using NewsParserApi.Models;
+using NewsParserApi.Entities;
 using NewsParserApi.Repositories.Interfaces;
 
 namespace NewsParserApi.Controllers

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NewsParserApi.Data;
 
@@ -11,9 +12,10 @@ using NewsParserApi.Data;
 namespace NewsParserApi.Migrations
 {
     [DbContext(typeof(NewsApiDbContext))]
-    partial class NewsApiDbContextModelSnapshot : ModelSnapshot
+    [Migration("20221027142458_AddedUser")]
+    partial class AddedUser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

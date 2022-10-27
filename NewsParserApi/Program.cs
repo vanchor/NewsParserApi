@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using NewsParserApi.Data;
+using NewsParserApi.Helpers;
 using NewsParserApi.Models;
 using NewsParserApi.Repositories.Implementations;
 using NewsParserApi.Repositories.Interfaces;
@@ -30,7 +31,10 @@ builder.Services.AddDbContext<NewsApiDbContext>(options =>
     options.UseSqlServer(connectionString));
 
 builder.Services.AddScoped<INewsRepository, NewsRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ICommentRepository, CommentRepository>();
+
+builder.Services.AddScoped<IUserService, UserService>();
 
 builder.Services.AddHostedService<TimedNewsParser>();
 
@@ -56,7 +60,8 @@ app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 
-// app.UseAuthorization();
+app.UseMiddleware<JwtMiddleware>();
+app.UseAuthorization();
 
 app.MapControllers();
 

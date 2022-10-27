@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using NewsParserApi.Data;
-using NewsParserApi.Models;
+using NewsParserApi.Entities;
 using NewsParserApi.Repositories.Interfaces;
 
 namespace NewsParserApi.Repositories.Implementations

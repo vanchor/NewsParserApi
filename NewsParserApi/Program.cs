@@ -1,10 +1,13 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using NewsParserApi.Data;
-using NewsParserApi.Helpers;
-using NewsParserApi.Models;
 using NewsParserApi.Repositories.Implementations;
 using NewsParserApi.Repositories.Interfaces;
 using NewsParserApi.Services;
+using Swashbuckle.AspNetCore.Filters;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,7 +16,18 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
+    {
+        Description = "bearer {token}",
+        In = ParameterLocation.Header,
+        Name = "Authorization",
+        Type = SecuritySchemeType.ApiKey
+    });
+
+    options.OperationFilter<SecurityRequirementsOperationFilter>();
+});
 
 string connectionString;
 //if(Environment.GetEnvironmentVariable("DB_HOST") != null) 
@@ -45,11 +59,24 @@ builder.Services.AddCors(options =>
         policy =>
         {
             policy.AllowAnyOrigin()
-                    .AllowAnyMethod()
-                    .AllowAnyHeader()
-                    .SetIsOriginAllowed(origin => true);
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .SetIsOriginAllowed(origin => true);
         });
 });
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        .AddJwtBearer(options =>
+        {
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8
+                    .GetBytes(builder.Configuration.GetSection("AppSettings:Token").Value)),
+                ValidateIssuer = false,
+                ValidateAudience = false
+            };
+        });
 
 var app = builder.Build();
 
@@ -60,7 +87,7 @@ app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 
-app.UseMiddleware<JwtMiddleware>();
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

@@ -39,8 +39,7 @@ namespace NewsParserApi.Controllers
             return response.Data;
         }
 
-        [Authorize]
-        [HttpGet("Test")]
+        [HttpGet("Test"), Authorize]
         public ActionResult Test()
         {
             return Ok("Dicki");

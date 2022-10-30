@@ -21,18 +21,17 @@ namespace NewsParserApi.Controllers
         [HttpGet]
         public ActionResult<IEnumerable<NewsPreviewList>> GetNews(int count, int start = 0)
         {
-            string currentUsername = null;
+            string? currentUsername = null;
             if (User.Identity.IsAuthenticated)
             {
                 ClaimsPrincipal currentUser = User;
                 currentUsername = currentUser.FindFirst(ClaimTypes.Name).Value;
             }
 
-            
             return _newsRepository.GetWithPagination(count, start, currentUsername).ToList();
         }
 
-        [HttpPost("{id}/likeDislike")]
+        [HttpPost("{id}/likeDislike"), Authorize]
         public ActionResult LikeNews(int id, bool isLike)
         {
             ClaimsPrincipal currentUser = this.User;

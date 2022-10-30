@@ -80,6 +80,8 @@ namespace NewsParserApi.Services
 
                     var json = JsonSerializer.Serialize(paragraphs);
 
+                    var img = newsSection.SelectSingleNode("div[@class=\"WYSIWYG articlePage\"]/div[@id=\"imgCarousel\"]/img")?.Attributes["src"].Value;
+
                     news.Add(new News()
                     {
                         Title = title,
@@ -117,9 +119,9 @@ namespace NewsParserApi.Services
         private void DoWork(object? state)
         {
             if(!bigRequest)
-                ParseAndSaveUniqueNewsAsync(10);
+                ParseAndSaveUniqueNewsAsync(20);
             else
-                ParseAndSaveUniqueNewsAsync(50);
+                ParseAndSaveUniqueNewsAsync(100);
         }
 
         public Task StopAsync(CancellationToken cancellationToken)

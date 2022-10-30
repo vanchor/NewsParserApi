@@ -1,6 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using NewsParserApi.Models;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using NewsParserApi.Entities;
+using NewsParserApi.Models.NewsDto;
 using NewsParserApi.Repositories.Interfaces;
+using System.Text.Json;
+using System.Security.Claims;
 
 namespace NewsParserApi.Controllers
 {
@@ -16,12 +20,70 @@ namespace NewsParserApi.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<News>> GetNews(int count, int start = 0)
+        public ActionResult<IEnumerable<NewsPreviewList>> GetNews(int count, int start = 0)
         {
-            return _newsRepository.GetWithPagination(count, start).ToList();
+            string? currentUsername = null;
+            if (User.Identity.IsAuthenticated)
+            {
+                ClaimsPrincipal currentUser = User;
+                currentUsername = currentUser.FindFirst(ClaimTypes.Name).Value;
+            }
+
+            return Ok(_newsRepository.GetWithPagination(count, start, currentUsername));
         }
 
-        [HttpPost]
+        [HttpGet("{id}")]
+        public ActionResult<NewsById> GetNewsById(int id)
+        {
+            string? currentUsername = null;
+            if (User.Identity.IsAuthenticated)
+            {
+                ClaimsPrincipal currentUser = User;
+                currentUsername = currentUser.FindFirst(ClaimTypes.Name).Value;
+            }
+            var newsInDb = _newsRepository.GetByIdWithIncludes(id);
+
+            if (newsInDb == null)
+                return NotFound();
+
+            var newsVM = new NewsById()
+            {
+                Id = newsInDb.Id,
+                Title = newsInDb.Title,
+                Date = newsInDb.Date,
+                Text = newsInDb.Text,
+                ImageUrl = newsInDb.ImageUrl,
+                Url = newsInDb.Url,
+                LikesCount = newsInDb.LikeDislike.Count(ld => ld.isLike == true),
+                DislikesCount = newsInDb.LikeDislike.Count(ld => ld.isLike == false),
+                likedByCurrentUser = newsInDb.LikeDislike?.FirstOrDefault(x => x.Username == currentUsername)?.isLike,
+                Comments = newsInDb.Comments,
+                Content = JsonSerializer.Deserialize<List<string>>(newsInDb.Content)
+            };
+
+            return Ok(newsVM);
+        }
+
+        [HttpPost("{id}/likeDislike"), Authorize]
+        public ActionResult LikeNews(int id, bool isLike)
+        {
+            ClaimsPrincipal currentUser = this.User;
+            var currentUserName = currentUser.FindFirst(ClaimTypes.Name).Value;
+
+            try
+            {
+                _newsRepository.LikeNews(id, currentUserName, isLike);
+                _newsRepository.SaveChanges();
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+            return Ok();
+        }
+
+        [HttpPost, Authorize]
         public ActionResult<News> AddNews(News n)
         {
             _newsRepository.Add(n);

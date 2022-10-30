@@ -1,6 +1,6 @@
-﻿namespace NewsParserApi.Models
+﻿namespace NewsParserApi.Models.NewsDto
 {
-    public class News
+    public class NewsPreviewList
     {
         public int Id { get; set; }
         public string Title { get; set; }
@@ -9,6 +9,9 @@
         public string? ImageUrl { get; set; }
         public string Url { get; set; }
 
-        public ICollection<Comment> Comments { get; set; }
+        public int LikesCount { get; set; }
+        public int DislikesCount { get; set; }
+
+        public bool? likedByCurrentUser { get; set; } = null;
     }
 }

@@ -1,4 +1,4 @@
-﻿using NewsParserApi.Models;
+﻿using NewsParserApi.Entities;
 
 namespace NewsParserApi.Repositories.Interfaces
 {

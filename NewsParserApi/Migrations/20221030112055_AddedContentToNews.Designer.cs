@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NewsParserApi.Data;
 
@@ -11,9 +12,10 @@ using NewsParserApi.Data;
 namespace NewsParserApi.Migrations
 {
     [DbContext(typeof(NewsApiDbContext))]
-    partial class NewsApiDbContextModelSnapshot : ModelSnapshot
+    [Migration("20221030112055_AddedContentToNews")]
+    partial class AddedContentToNews
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -44,7 +46,7 @@ namespace NewsParserApi.Migrations
 
                     b.HasIndex("NewsId");
 
-                    b.ToTable("Comments", (string)null);
+                    b.ToTable("Comments");
                 });
 
             modelBuilder.Entity("NewsParserApi.Entities.LikeDislike", b =>
@@ -71,7 +73,7 @@ namespace NewsParserApi.Migrations
 
                     b.HasIndex("Username");
 
-                    b.ToTable("LikeDislike", (string)null);
+                    b.ToTable("LikeDislike");
                 });
 
             modelBuilder.Entity("NewsParserApi.Entities.News", b =>
@@ -83,6 +85,7 @@ namespace NewsParserApi.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<string>("Content")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("Date")
@@ -108,7 +111,7 @@ namespace NewsParserApi.Migrations
                     b.HasIndex("Title")
                         .IsUnique();
 
-                    b.ToTable("News", (string)null);
+                    b.ToTable("News");
                 });
 
             modelBuilder.Entity("NewsParserApi.Entities.User", b =>
@@ -130,7 +133,7 @@ namespace NewsParserApi.Migrations
 
                     b.HasKey("Username");
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("NewsParserApi.Entities.Comment", b =>

@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using NewsParserApi.Data;
 using NewsParserApi.Entities;
 using NewsParserApi.Models.NewsDto;
@@ -11,6 +10,14 @@ namespace NewsParserApi.Repositories.Implementations
     {
         public NewsRepository(NewsApiDbContext context) : base(context)
         {
+        }
+
+        public News? GetByIdWithIncludes(int id)
+        {
+            return _context.News
+                .Include(n => n.LikeDislike)
+                .Include(n => n.Comments)
+                .FirstOrDefault(n => n.Id == id);
         }
 
         public IEnumerable<News> AddNewsWithUniqueTitles(IEnumerable<News> news)
@@ -32,23 +39,23 @@ namespace NewsParserApi.Repositories.Implementations
         public IEnumerable<NewsPreviewList> GetWithPagination(int count, int start, string? currentUsername = null)
         {
             return _context.News
-                    .Select(x => new NewsPreviewList()
-                    {
-                        Id = x.Id,
-                        Title = x.Title,
-                        Text = x.Text,
-                        Date = x.Date,
-                        ImageUrl = x.ImageUrl,
-                        Url = x.Url,
-                        DislikesCount = x.LikeDislike.Count(x => x.isLike == false),
-                        LikesCount = x.LikeDislike.Count(x => x.isLike == true),
-                        likedByCurrentUser = x.LikeDislike.FirstOrDefault(x => x.Username == currentUsername).isLike
-                    })
-                    .OrderByDescending(n => n.Date)
-                    .Skip(start)
-                    .Take(count)
-                    .AsNoTracking()
-                    .ToList();
+                .Select(x => new NewsPreviewList()
+                {
+                    Id = x.Id,
+                    Title = x.Title,
+                    Text = x.Text,
+                    Date = x.Date,
+                    ImageUrl = x.ImageUrl,
+                    Url = x.Url,
+                    DislikesCount = x.LikeDislike.Count(x => x.isLike == false),
+                    LikesCount = x.LikeDislike.Count(x => x.isLike == true),
+                    likedByCurrentUser = x.LikeDislike.FirstOrDefault(x => x.Username == currentUsername).isLike
+                })
+                .OrderByDescending(n => n.Date)
+                .Skip(start)
+                .Take(count)
+                .AsNoTracking()
+                .ToList();
         }
 
         public void LikeNews(int newsId, string username, bool isLike)

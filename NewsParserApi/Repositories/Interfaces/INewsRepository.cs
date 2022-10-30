@@ -9,5 +9,6 @@ namespace NewsParserApi.Repositories.Interfaces
         IEnumerable<NewsPreviewList> GetWithPagination(int count, int start, string? currentUsername = null);
         IEnumerable<string> GetAllTitles();
         void LikeNews(int newsId, string username, bool isLike);
+        News? GetByIdWithIncludes(int id);
     }
 }

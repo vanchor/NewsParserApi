@@ -30,7 +30,7 @@ namespace NewsParserApi.Services
             _logger.LogInformation("Timed Parser Service running.");
 
             _timer = new Timer(DoWork, null, TimeSpan.Zero,
-                TimeSpan.FromHours(24)); // daily
+                TimeSpan.FromHours(3)); // Every 3 hours
             return Task.CompletedTask;
         }
 

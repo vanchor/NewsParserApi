@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using NewsParserApi.Entities;
 using NewsParserApi.Models.NewsDto;
 using NewsParserApi.Repositories.Interfaces;
+using System.Text.Json;
 using System.Security.Claims;
 
 namespace NewsParserApi.Controllers
@@ -28,7 +29,39 @@ namespace NewsParserApi.Controllers
                 currentUsername = currentUser.FindFirst(ClaimTypes.Name).Value;
             }
 
-            return _newsRepository.GetWithPagination(count, start, currentUsername).ToList();
+            return Ok(_newsRepository.GetWithPagination(count, start, currentUsername));
+        }
+
+        [HttpGet("{id}")]
+        public ActionResult<NewsById> GetNewsById(int id)
+        {
+            string? currentUsername = null;
+            if (User.Identity.IsAuthenticated)
+            {
+                ClaimsPrincipal currentUser = User;
+                currentUsername = currentUser.FindFirst(ClaimTypes.Name).Value;
+            }
+            var newsInDb = _newsRepository.GetByIdWithIncludes(id);
+
+            if (newsInDb == null)
+                return NotFound();
+
+            var newsVM = new NewsById()
+            {
+                Id = newsInDb.Id,
+                Title = newsInDb.Title,
+                Date = newsInDb.Date,
+                Text = newsInDb.Text,
+                ImageUrl = newsInDb.ImageUrl,
+                Url = newsInDb.Url,
+                LikesCount = newsInDb.LikeDislike.Count(ld => ld.isLike == true),
+                DislikesCount = newsInDb.LikeDislike.Count(ld => ld.isLike == false),
+                likedByCurrentUser = newsInDb.LikeDislike?.FirstOrDefault(x => x.Username == currentUsername)?.isLike,
+                Comments = newsInDb.Comments,
+                Content = JsonSerializer.Deserialize<List<string>>(newsInDb.Content)
+            };
+
+            return Ok(newsVM);
         }
 
         [HttpPost("{id}/likeDislike"), Authorize]

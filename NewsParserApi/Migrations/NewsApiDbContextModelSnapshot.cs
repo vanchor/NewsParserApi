@@ -44,7 +44,7 @@ namespace NewsParserApi.Migrations
 
                     b.HasIndex("NewsId");
 
-                    b.ToTable("Comments");
+                    b.ToTable("Comments", (string)null);
                 });
 
             modelBuilder.Entity("NewsParserApi.Entities.LikeDislike", b =>
@@ -71,7 +71,7 @@ namespace NewsParserApi.Migrations
 
                     b.HasIndex("Username");
 
-                    b.ToTable("LikeDislike");
+                    b.ToTable("LikeDislike", (string)null);
                 });
 
             modelBuilder.Entity("NewsParserApi.Entities.News", b =>
@@ -108,7 +108,7 @@ namespace NewsParserApi.Migrations
                     b.HasIndex("Title")
                         .IsUnique();
 
-                    b.ToTable("News");
+                    b.ToTable("News", (string)null);
                 });
 
             modelBuilder.Entity("NewsParserApi.Entities.User", b =>
@@ -130,7 +130,7 @@ namespace NewsParserApi.Migrations
 
                     b.HasKey("Username");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("NewsParserApi.Entities.Comment", b =>

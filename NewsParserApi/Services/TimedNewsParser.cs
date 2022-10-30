@@ -1,7 +1,9 @@
 ﻿using HtmlAgilityPack;
 using NewsParserApi.Entities;
+using NewsParserApi.Helpers;
 using NewsParserApi.Models;
 using NewsParserApi.Repositories.Interfaces;
+using System.Globalization;
 using System.Text.Json;
 using System.Web;
 
@@ -32,14 +34,6 @@ namespace NewsParserApi.Services
             return Task.CompletedTask;
         }
 
-        private static async Task<string> CallUrl(string fullUrl)
-        {
-            HttpClient client = new HttpClient();
-            client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.1.5) Gecko/20091102 Firefox/3.5.5 (.NET CLR 3.5.30729)");
-            var response = await client.GetStringAsync(fullUrl);
-            return response;
-        }
-
         private string DeserializeAndDecodeHtml(string json)
         {
             var investorsWebApi = JsonSerializer.Deserialize<InvestorsWebApi>(json);
@@ -50,7 +44,7 @@ namespace NewsParserApi.Services
             return HttpUtility.HtmlDecode(investorsWebApi.html) ?? "";
         }
 
-        private List<News> ParseInvestorsHtml(string html) // Parser for https://www.investors.com/
+        private List<News> ParseInvestorsHtml(string html, IEnumerable<string>? existingTitles = null) // Parser for https://www.investors.com/
         {
             var htmlDoc = new HtmlDocument();
             htmlDoc.LoadHtml(html);
@@ -60,30 +54,53 @@ namespace NewsParserApi.Services
 
             foreach (var element in newsList)
             {
+                var title = element.SelectSingleNode("h3/a").InnerText.Trim();
+                if (existingTitles.Contains(title))
+                    continue;
+
+                var url = element.SelectSingleNode("h3/a").Attributes["href"].Value.Trim();
+                //var response = ParsesHelper.CallUrl(url).Result;
+                //var htmlOneNews = new HtmlDocument();
+                //htmlOneNews.LoadHtml(response);
+                //var newsArticle = htmlOneNews.DocumentNode.SelectNodes("//article")[0];
+
+                //var dt = DateTime.ParseExact(
+                //    s: newsArticle.SelectNodes("header//div/ul/li")[1].InnerText.Trim().Replace("ET ", ""),
+                //    format: "hh:mm tt MM/dd/yyyy", 
+                 //   provider: CultureInfo.InvariantCulture);
+
+               // List<string> paragraphs = new List<string>();
+               // var pElements = newsArticle.SelectNodes("div/p");
+               // foreach(var p in pElements)
+                //    paragraphs.Add(p.InnerText);
+
+              //  var json = JsonSerializer.Serialize(paragraphs);
+
                 news.Add(new News()
                 {
-                    Title = element.SelectSingleNode("h3/a").InnerText.Trim(),
+                    Title = title,
                     ImageUrl = element.SelectSingleNode("img")?.Attributes["src"].Value.Replace("-150x150", "").Trim(),
-                    Url = element.SelectSingleNode("h3/a").Attributes["href"].Value.Trim(),
+                    Url = url,
                     Text = element.SelectNodes("p")[1].InnerText.Trim(),
-                    Date = DateTime.Parse(element.SelectNodes("p")[0].InnerText.Trim())
+                   // Date = dt,
+                  //  Content = json
                 });
             }
             return news;
         }
 
-        private List<News> ParseInvestorsWebApp(int posts_per_page = 5, int page = 0)
+        private List<News> ParseInvestorsWebApp(int posts_per_page = 5, int page = 0, IEnumerable<string>? existingTitles = null)
         {
             string url = $"https://www.investors.com/wp-admin/admin-ajax.php?slug=economy&canonical_url=https%3A%2F%2Fwww.investors.com%2Fcategory%2Fnews%2Feconomy%2F&posts_per_page={posts_per_page}&page={page}&category=economy&order=DESC&orderby=date&action=alm_get_posts";
 
-            var response = CallUrl(url).Result;
-            var news = ParseInvestorsHtml(DeserializeAndDecodeHtml(response));
+            var response = ParsesHelper.CallUrl(url).Result;
+            var news = ParseInvestorsHtml(DeserializeAndDecodeHtml(response), existingTitles);
             return news;
         }
 
         private async void ParseAndSaveUniqueNews(int requestCount)
         {
-            var news = ParseInvestorsWebApp(requestCount);
+            var news = ParseInvestorsWebApp(requestCount, existingTitles: _newsRepository.GetAllTitles());
 
             var addedNews = _newsRepository.AddNewsWithUniqueTitles(news);
             await _newsRepository.SaveChangesAsync();

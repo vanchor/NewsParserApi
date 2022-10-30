@@ -80,12 +80,10 @@ namespace NewsParserApi.Services
 
                     var json = JsonSerializer.Serialize(paragraphs);
 
-                    var img = newsSection.SelectSingleNode("div[@class=\"WYSIWYG articlePage\"]/div[@id=\"imgCarousel\"]/img")?.Attributes["src"].Value;
-
                     news.Add(new News()
                     {
                         Title = title,
-                        ImageUrl = newsSection.SelectSingleNode("div[@id=\"imgCarousel\"]/img")?.Attributes["src"].Value,
+                        ImageUrl = newsSection.SelectSingleNode("div[@class=\"WYSIWYG articlePage\"]/div[@id=\"imgCarousel\"]/img")?.Attributes["src"].Value,
                         Url = singleNewsUrl,
                         Text = element.SelectNodes("div/p")[0].InnerText,
                         Date = dt,

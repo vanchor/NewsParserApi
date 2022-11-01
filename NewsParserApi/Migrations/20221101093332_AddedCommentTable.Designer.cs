@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NewsParserApi.Data;
 
@@ -11,9 +12,10 @@ using NewsParserApi.Data;
 namespace NewsParserApi.Migrations
 {
     [DbContext(typeof(NewsApiDbContext))]
-    partial class NewsApiDbContextModelSnapshot : ModelSnapshot
+    [Migration("20221101093332_AddedCommentTable")]
+    partial class AddedCommentTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -43,7 +45,7 @@ namespace NewsParserApi.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Username")
+                    b.Property<string>("username")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
@@ -53,7 +55,7 @@ namespace NewsParserApi.Migrations
 
                     b.HasIndex("NewsId");
 
-                    b.HasIndex("Username");
+                    b.HasIndex("username");
 
                     b.ToTable("Comments");
                 });
@@ -161,7 +163,7 @@ namespace NewsParserApi.Migrations
 
                     b.HasOne("NewsParserApi.Entities.User", "User")
                         .WithMany()
-                        .HasForeignKey("Username")
+                        .HasForeignKey("username")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

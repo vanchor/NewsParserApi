@@ -17,6 +17,7 @@ namespace NewsParserApi.Repositories.Implementations
             return _context.News
                 .Include(n => n.LikeDislike)
                 .Include(n => n.Comments)
+                .ThenInclude(x => x.Comments)
                 .FirstOrDefault(n => n.Id == id);
         }
 

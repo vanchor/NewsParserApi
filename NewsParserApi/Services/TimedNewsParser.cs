@@ -69,7 +69,9 @@ namespace NewsParserApi.Services
                     int startIndexOfDate = dateStr.IndexOf('(');
                     if (startIndexOfDate != -1)
                         dateStr = dateStr.Substring(startIndexOfDate + 1).Replace(")", "");
-                    var dt = DateTime.Parse(dateStr);
+                    var dt = TimeZoneInfo.ConvertTimeToUtc(
+                        dateTime: DateTime.Parse(dateStr), 
+                        sourceTimeZone: TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time"));
 
 
                     //Get the conent from the single news page 
@@ -116,7 +118,7 @@ namespace NewsParserApi.Services
 
         private void DoWork(object? state)
         {
-            if(!bigRequest)
+            if (!bigRequest)
                 ParseAndSaveUniqueNewsAsync(20);
             else
                 ParseAndSaveUniqueNewsAsync(100);

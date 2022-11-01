@@ -5,6 +5,7 @@ using NewsParserApi.Models.NewsDto;
 using NewsParserApi.Repositories.Interfaces;
 using System.Text.Json;
 using System.Security.Claims;
+using NewsParserApi.Models.CommentDto;
 
 namespace NewsParserApi.Controllers
 {
@@ -13,10 +14,12 @@ namespace NewsParserApi.Controllers
     public class NewsController : ControllerBase
     {
         private readonly INewsRepository _newsRepository;
+        private readonly ICommentRepository _commentRepository;
 
-        public NewsController(INewsRepository newsRepository)
+        public NewsController(INewsRepository newsRepository, ICommentRepository commentRepository)
         {
             _newsRepository = newsRepository;
+            _commentRepository = commentRepository;
         }
 
         [HttpGet]
@@ -57,9 +60,17 @@ namespace NewsParserApi.Controllers
                 LikesCount = newsInDb.LikeDislike.Count(ld => ld.isLike == true),
                 DislikesCount = newsInDb.LikeDislike.Count(ld => ld.isLike == false),
                 likedByCurrentUser = newsInDb.LikeDislike?.FirstOrDefault(x => x.Username == currentUsername)?.isLike,
-                Comments = newsInDb.Comments,
                 Content = JsonSerializer.Deserialize<List<string>>(newsInDb.Content)
             };
+
+            foreach(var comment in newsInDb.Comments)
+                newsVM.Comments.Add(new CommentVM
+                {
+                    Text = comment.Text,
+                    Date = comment.Date,
+                    Username = comment.Username,
+                    Id = comment.Id
+                });
 
             return Ok(newsVM);
         }
@@ -74,6 +85,33 @@ namespace NewsParserApi.Controllers
             {
                 _newsRepository.LikeNews(id, currentUserName, isLike);
                 _newsRepository.SaveChanges();
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+            return Ok();
+        }
+
+        [HttpPost("{id}/addComment"), Authorize]
+        public ActionResult addComment(int id, string commentText)
+        {
+            ClaimsPrincipal currentUser = this.User;
+            var currentUserName = currentUser.FindFirst(ClaimTypes.Name).Value;
+
+            try
+            {
+                Comment comment = new Comment()
+                {
+                    NewsId = id,
+                    Date = DateTime.Now,
+                    Text = commentText,
+                    Username = currentUserName
+                };
+
+                _commentRepository.Add(comment);
+                _commentRepository.SaveChanges();
             }
             catch (ArgumentException ex)
             {

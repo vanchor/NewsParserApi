@@ -10,7 +10,7 @@
         public string Url { get; set; }
         public string? Content { get; set; }
 
-        public ICollection<Comment> Comments { get; set; }
-        public ICollection<LikeDislike> LikeDislike { get; set; }
+        public ICollection<Comment>? Comments { get; set; }
+        public ICollection<LikeDislike>? LikeDislike { get; set; }
     }
 }

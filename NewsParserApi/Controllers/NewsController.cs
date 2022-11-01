@@ -77,6 +77,11 @@ namespace NewsParserApi.Controllers
 
             try
             {
+                var newsInDb = _newsRepository.GetById(id);
+
+                if (newsInDb == null)
+                    return NotFound("No news with this id");
+
                 _newsRepository.LikeNews(id, currentUserName, isLike);
                 _newsRepository.SaveChanges();
             }
@@ -96,6 +101,11 @@ namespace NewsParserApi.Controllers
 
             try
             {
+                var newsInDb = _newsRepository.GetById(id);
+
+                if (newsInDb == null)
+                    return NotFound("No news with this id");
+
                 Comment comment = new Comment()
                 {
                     NewsId = id,

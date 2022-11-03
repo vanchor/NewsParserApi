@@ -18,6 +18,30 @@ namespace NewsParserApi.Controllers
             _commentRepository = commentRepository;
         }
 
+        [HttpPost("{id}/likeDislike"), Authorize]
+        public ActionResult LikeNews(int id, bool isLike)
+        {
+            ClaimsPrincipal currentUser = this.User;
+            var currentUserName = currentUser.FindFirst(ClaimTypes.Name).Value;
+
+            try
+            {
+                var newsInDb = _commentRepository.GetById(id);
+
+                if (newsInDb == null)
+                    return NotFound("No comment with this id");
+
+                _commentRepository.LikeComment(id, currentUserName, isLike);
+                _commentRepository.SaveChanges();
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+            return Ok();
+        }
+
         [HttpPost("{id}/addComment"), Authorize]
         public ActionResult AddComment(int id, string commentText)
         {

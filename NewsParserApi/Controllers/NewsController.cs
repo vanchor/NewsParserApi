@@ -64,7 +64,7 @@ namespace NewsParserApi.Controllers
             };
 
             foreach(var comment in newsInDb.Comments)
-                newsVM.Comments.Add(new CommentVM(comment));
+                newsVM.Comments.Add(new CommentVM(comment, currentUsername));
 
             return Ok(newsVM);
         }

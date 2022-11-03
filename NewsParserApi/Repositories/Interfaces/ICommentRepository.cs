@@ -4,5 +4,6 @@ namespace NewsParserApi.Repositories.Interfaces
 {
     public interface ICommentRepository : IBaseRepository<Comment>
     {
+        void LikeComment(int commentId, string username, bool isLike);
     }
 }

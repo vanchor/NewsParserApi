@@ -14,11 +14,32 @@ namespace NewsParserApi.Repositories.Implementations
 
         public News? GetByIdWithIncludes(int id)
         {
-            return _context.News
-                .Include(n => n.LikeDislike)
-                .Include(n => n.Comments)
-                .ThenInclude(x => x.Comments)
-                .FirstOrDefault(n => n.Id == id);
+            return _context.News.Select(n => new News
+            {
+                Id = n.Id,
+                Title = n.Title,
+                Date = n.Date,
+                ImageUrl = n.ImageUrl,
+                Url = n.Url,
+                Content = n.Content,
+                LikeDislike = n.LikeDislike,
+                Comments = n.Comments.Select(c => new Comment
+                {
+                    Id = c.Id,
+                    Text = c.Text,
+                    Date = c.Date,
+                    Username = c.Username,
+                    LikeDislike = c.LikeDislike,
+                    Comments = c.Comments.Select(cl2 => new Comment
+                    {
+                        Id = cl2.Id,
+                        Text = cl2.Text,
+                        Date = cl2.Date,
+                        Username = cl2.Username,
+                        LikeDislike = cl2.LikeDislike
+                    }).OrderBy(x => x.Date).ToList()
+                }).OrderByDescending(x => x.Date).ToList(),
+            }).FirstOrDefault(n => n.Id == id);
         }
 
         public IEnumerable<News> AddNewsWithUniqueTitles(IEnumerable<News> news)

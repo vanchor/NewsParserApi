@@ -63,17 +63,17 @@ namespace NewsParserApi.Controllers
                 Content = JsonSerializer.Deserialize<List<string>>(newsInDb.Content)
             };
 
-            foreach(var comment in newsInDb.Comments)
+            foreach (var comment in newsInDb.Comments)
                 newsVM.Comments.Add(new CommentVM(comment, currentUsername));
 
             return Ok(newsVM);
         }
 
         [HttpPost("{id}/likeDislike"), Authorize]
-        public ActionResult LikeNews(int id, bool isLike)
+        public ActionResult<NewsPreviewList> LikeNews(int id, bool? isLike)
         {
             ClaimsPrincipal currentUser = this.User;
-            var currentUserName = currentUser.FindFirst(ClaimTypes.Name).Value;
+            var currentUsername = currentUser.FindFirst(ClaimTypes.Name).Value;
 
             try
             {
@@ -82,7 +82,7 @@ namespace NewsParserApi.Controllers
                 if (newsInDb == null)
                     return NotFound("No news with this id");
 
-                _newsRepository.LikeNews(id, currentUserName, isLike);
+                _newsRepository.LikeNews(id, currentUsername, isLike);
                 _newsRepository.SaveChanges();
             }
             catch (ArgumentException ex)
@@ -90,7 +90,9 @@ namespace NewsParserApi.Controllers
                 return BadRequest(ex.Message);
             }
 
-            return Ok();
+            var news = _newsRepository.GetByIdWithLikes(id, currentUsername);
+
+            return Ok(news);
         }
 
         [HttpPost("{id}/addComment"), Authorize]

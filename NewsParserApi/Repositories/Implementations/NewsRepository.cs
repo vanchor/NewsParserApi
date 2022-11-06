@@ -80,28 +80,52 @@ namespace NewsParserApi.Repositories.Implementations
                 .ToList();
         }
 
-        public void LikeNews(int newsId, string username, bool isLike)
+        public NewsPreviewList? GetByIdWithLikes(int id, string? currentUsername = null)
+        {
+            return _context.News
+                .Select(x => new NewsPreviewList()
+                {
+                    Id = x.Id,
+                    Title = x.Title,
+                    Text = x.Text,
+                    Date = x.Date,
+                    ImageUrl = x.ImageUrl,
+                    Url = x.Url,
+                    DislikesCount = x.LikeDislike.Count(x => x.isLike == false),
+                    LikesCount = x.LikeDislike.Count(x => x.isLike == true),
+                    likedByCurrentUser = x.LikeDislike.FirstOrDefault(x => x.Username == currentUsername).isLike
+                })
+                .AsNoTracking()
+                .FirstOrDefault(x => x.Id == id);
+        }
+
+        public void LikeNews(int newsId, string username, bool? isLike)
         {
             var inDb = _context.LikeDislike.FirstOrDefault(x => (x.NewsId == newsId)
                                             && (x.Username == username));
             if (inDb != null)
             {
-                if (inDb.isLike == isLike)
+                if (isLike == null)
+                    _context.LikeDislike.Remove(inDb);
+                else if (inDb.isLike == isLike)
                     throw new ArgumentException("There is already a record with this data");
                 else
                 {
-                    inDb.isLike = isLike;
+                    inDb.isLike = (bool)isLike;
                     _context.Entry(inDb).Property(i => i.isLike).IsModified = true;
                 }
             }
             else
             {
-                _context.LikeDislike.Add(new LikeDislike()
+                if (isLike != null)
                 {
-                    Username = username,
-                    NewsId = newsId,
-                    isLike = isLike
-                });
+                    _context.LikeDislike.Add(new LikeDislike()
+                    {
+                        Username = username,
+                        NewsId = newsId,
+                        isLike = (bool)isLike
+                    });
+                }
             }
         }
     }

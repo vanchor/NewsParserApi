@@ -11,6 +11,26 @@ namespace NewsParserApi.Repositories.Implementations
 
         }
 
+        public Comment? getByIdWithIncludes(int id)
+        {
+            return _context.Comments.Select(c => new Comment
+                {
+                    Id = c.Id,
+                    Text = c.Text,
+                    Date = c.Date,
+                    Username = c.Username,
+                    LikeDislike = c.LikeDislike,
+                    Comments = c.Comments.Select(cl2 => new Comment
+                    {
+                        Id = cl2.Id,
+                        Text = cl2.Text,
+                        Date = cl2.Date,
+                        Username = cl2.Username,
+                        LikeDislike = cl2.LikeDislike
+                    }).OrderBy(x => x.Date).ToList()
+                }).FirstOrDefault(x => x.Id == id);
+        }
+
         public void LikeComment(int commentId, string username, bool isLike)
         {
             var inDb = _context.LikeDislike.FirstOrDefault(x => (x.CommentId == commentId)

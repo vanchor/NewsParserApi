@@ -12,8 +12,8 @@ using NewsParserApi.Data;
 namespace NewsParserApi.Migrations
 {
     [DbContext(typeof(NewsApiDbContext))]
-    [Migration("20221030112443_MadeNewsContectNullable")]
-    partial class MadeNewsContectNullable
+    [Migration("20221101181314_InitMigration")]
+    partial class InitMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -32,19 +32,30 @@ namespace NewsParserApi.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
+                    b.Property<int?>("CommentId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("NewsId")
+                    b.Property<int?>("NewsId")
                         .HasColumnType("int");
 
                     b.Property<string>("Text")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("Id");
 
+                    b.HasIndex("CommentId");
+
                     b.HasIndex("NewsId");
+
+                    b.HasIndex("Username");
 
                     b.ToTable("Comments");
                 });
@@ -57,7 +68,10 @@ namespace NewsParserApi.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<int>("NewsId")
+                    b.Property<int?>("CommentId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("NewsId")
                         .HasColumnType("int");
 
                     b.Property<string>("Username")
@@ -68,6 +82,8 @@ namespace NewsParserApi.Migrations
                         .HasColumnType("bit");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CommentId");
 
                     b.HasIndex("NewsId");
 
@@ -92,6 +108,9 @@ namespace NewsParserApi.Migrations
 
                     b.Property<string>("ImageUrl")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("ParsedDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Text")
                         .IsRequired()
@@ -137,22 +156,13 @@ namespace NewsParserApi.Migrations
 
             modelBuilder.Entity("NewsParserApi.Entities.Comment", b =>
                 {
+                    b.HasOne("NewsParserApi.Entities.Comment", null)
+                        .WithMany("Comments")
+                        .HasForeignKey("CommentId");
+
                     b.HasOne("NewsParserApi.Entities.News", "CommentedNews")
                         .WithMany("Comments")
-                        .HasForeignKey("NewsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("CommentedNews");
-                });
-
-            modelBuilder.Entity("NewsParserApi.Entities.LikeDislike", b =>
-                {
-                    b.HasOne("NewsParserApi.Entities.News", "News")
-                        .WithMany("LikeDislike")
-                        .HasForeignKey("NewsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("NewsId");
 
                     b.HasOne("NewsParserApi.Entities.User", "User")
                         .WithMany()
@@ -160,9 +170,37 @@ namespace NewsParserApi.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("CommentedNews");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("NewsParserApi.Entities.LikeDislike", b =>
+                {
+                    b.HasOne("NewsParserApi.Entities.Comment", "Comment")
+                        .WithMany()
+                        .HasForeignKey("CommentId");
+
+                    b.HasOne("NewsParserApi.Entities.News", "News")
+                        .WithMany("LikeDislike")
+                        .HasForeignKey("NewsId");
+
+                    b.HasOne("NewsParserApi.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("Username")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Comment");
+
                     b.Navigation("News");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("NewsParserApi.Entities.Comment", b =>
+                {
+                    b.Navigation("Comments");
                 });
 
             modelBuilder.Entity("NewsParserApi.Entities.News", b =>

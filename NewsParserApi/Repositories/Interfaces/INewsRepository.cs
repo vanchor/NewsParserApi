@@ -7,8 +7,9 @@ namespace NewsParserApi.Repositories.Interfaces
     {
         IEnumerable<News> AddNewsWithUniqueTitles(IEnumerable<News> news);
         IEnumerable<NewsPreviewList> GetWithPagination(int count, int start, string? currentUsername = null);
+        NewsPreviewList? GetByIdWithLikes(int id, string? currentUsername = null);
         IEnumerable<string> GetAllTitles();
-        void LikeNews(int newsId, string username, bool isLike);
+        void LikeNews(int newsId, string username, bool? isLike);
         News? GetByIdWithIncludes(int id);
     }
 }

@@ -30,7 +30,7 @@ namespace NewsParserApi.Services
             _logger.LogInformation("Timed Parser Service running.");
 
             _timer = new Timer(DoWork, null, TimeSpan.Zero,
-                TimeSpan.FromHours(3)); // Every 3 hours
+                TimeSpan.FromHours(12)); // Every 12 hours
             return Task.CompletedTask;
         }
 
@@ -78,7 +78,8 @@ namespace NewsParserApi.Services
                     List<string> paragraphs = new List<string>();
                     var pElements = newsSection.SelectNodes("div[@class=\"WYSIWYG articlePage\"]/p");
                     foreach (var p in pElements)
-                        paragraphs.Add(p.InnerText);
+                        if(p.InnerText != "")
+                            paragraphs.Add(p.InnerText);
 
                     var json = JsonSerializer.Serialize(paragraphs);
 
@@ -89,7 +90,8 @@ namespace NewsParserApi.Services
                         Url = singleNewsUrl,
                         Text = element.SelectNodes("div/p")[0].InnerText,
                         Date = dt,
-                        Content = json
+                        Content = json,
+                        ParsedDate = DateTime.Now,
                     });
 
                     Console.WriteLine($"Added new {news.Count}");

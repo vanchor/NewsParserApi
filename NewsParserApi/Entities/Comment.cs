@@ -18,5 +18,6 @@ namespace NewsParserApi.Entities
         public int? CommentId { get; set; }
 
         public ICollection<Comment>? Comments { get; set; }
+        public ICollection<LikeDislike>? LikeDislike { get; set; }
     }
 }

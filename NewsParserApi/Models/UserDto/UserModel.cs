@@ -1,9 +1,16 @@
-﻿namespace NewsParserApi.Models.UserDto
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace NewsParserApi.Models.UserDto
 {
     public class UserModel
     {
-        public string Username { get; set; } = string.Empty;
-        public string Email { get; set; } = string.Empty;
-        public string Password { get; set; } = string.Empty;
+        [Required]
+        public string Username { get; set; }
+        [Required]
+        [EmailAddress]
+        [RegularExpression(@"^\S*$", ErrorMessage = "No white space allowed")]
+        public string Email { get; set; }
+        [Required]
+        public string Password { get; set; }
     }
 }

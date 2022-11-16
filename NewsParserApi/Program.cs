@@ -81,7 +81,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 var app = builder.Build();
 
 app.UseCors(MyAllowSpecificOrigins);
-app.UseCors(MyAllowSpecificOrigins);
 // Configure the HTTP request pipeline.
 app.UseSwagger();
 app.UseSwaggerUI();

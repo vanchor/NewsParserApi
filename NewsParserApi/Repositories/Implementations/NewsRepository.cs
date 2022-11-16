@@ -14,11 +14,32 @@ namespace NewsParserApi.Repositories.Implementations
 
         public News? GetByIdWithIncludes(int id)
         {
-            return _context.News
-                .Include(n => n.LikeDislike)
-                .Include(n => n.Comments)
-                .ThenInclude(x => x.Comments)
-                .FirstOrDefault(n => n.Id == id);
+            return _context.News.Select(n => new News
+            {
+                Id = n.Id,
+                Title = n.Title,
+                Date = n.Date,
+                ImageUrl = n.ImageUrl,
+                Url = n.Url,
+                Content = n.Content,
+                LikeDislike = n.LikeDislike,
+                Comments = n.Comments.Select(c => new Comment
+                {
+                    Id = c.Id,
+                    Text = c.Text,
+                    Date = c.Date,
+                    Username = c.Username,
+                    LikeDislike = c.LikeDislike,
+                    Comments = c.Comments.Select(cl2 => new Comment
+                    {
+                        Id = cl2.Id,
+                        Text = cl2.Text,
+                        Date = cl2.Date,
+                        Username = cl2.Username,
+                        LikeDislike = cl2.LikeDislike
+                    }).OrderBy(x => x.Date).ToList()
+                }).OrderByDescending(x => x.Date).ToList(),
+            }).FirstOrDefault(n => n.Id == id);
         }
 
         public IEnumerable<News> AddNewsWithUniqueTitles(IEnumerable<News> news)
@@ -59,28 +80,52 @@ namespace NewsParserApi.Repositories.Implementations
                 .ToList();
         }
 
-        public void LikeNews(int newsId, string username, bool isLike)
+        public NewsPreviewList? GetByIdWithLikes(int id, string? currentUsername = null)
+        {
+            return _context.News
+                .Select(x => new NewsPreviewList()
+                {
+                    Id = x.Id,
+                    Title = x.Title,
+                    Text = x.Text,
+                    Date = x.Date,
+                    ImageUrl = x.ImageUrl,
+                    Url = x.Url,
+                    DislikesCount = x.LikeDislike.Count(x => x.isLike == false),
+                    LikesCount = x.LikeDislike.Count(x => x.isLike == true),
+                    likedByCurrentUser = x.LikeDislike.FirstOrDefault(x => x.Username == currentUsername).isLike
+                })
+                .AsNoTracking()
+                .FirstOrDefault(x => x.Id == id);
+        }
+
+        public void LikeNews(int newsId, string username, bool? isLike)
         {
             var inDb = _context.LikeDislike.FirstOrDefault(x => (x.NewsId == newsId)
                                             && (x.Username == username));
             if (inDb != null)
             {
-                if (inDb.isLike == isLike)
+                if (isLike == null)
+                    _context.LikeDislike.Remove(inDb);
+                else if (inDb.isLike == isLike)
                     throw new ArgumentException("There is already a record with this data");
                 else
                 {
-                    inDb.isLike = isLike;
+                    inDb.isLike = (bool)isLike;
                     _context.Entry(inDb).Property(i => i.isLike).IsModified = true;
                 }
             }
             else
             {
-                _context.LikeDislike.Add(new LikeDislike()
+                if (isLike != null)
                 {
-                    Username = username,
-                    NewsId = newsId,
-                    isLike = isLike
-                });
+                    _context.LikeDislike.Add(new LikeDislike()
+                    {
+                        Username = username,
+                        NewsId = newsId,
+                        isLike = (bool)isLike
+                    });
+                }
             }
         }
     }

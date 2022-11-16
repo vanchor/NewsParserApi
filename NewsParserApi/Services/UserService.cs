@@ -25,7 +25,7 @@ namespace NewsParserApi.Services
                 !HashPasswordHelper.VerifyPasswordHash(model.Password, userInDb.PasswordHash, userInDb.PasswordSalt))
             {
                 return new BaseResponse<AuthenticateResponse>(){
-                    StatusCode = System.Net.HttpStatusCode.BadRequest,
+                    StatusCode = System.Net.HttpStatusCode.UnprocessableEntity,
                     Description = "Username or password is incorrect."
                 };
             }
@@ -48,7 +48,7 @@ namespace NewsParserApi.Services
             
             if(_userRepository.GetById(userModel.Username) != null)
                 return new BaseResponse<AuthenticateResponse>(){
-                    StatusCode = System.Net.HttpStatusCode.BadRequest,
+                    StatusCode = System.Net.HttpStatusCode.Conflict,
                     Description = "User already exists."
                 };
 

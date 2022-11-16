@@ -9,7 +9,7 @@ using NewsParserApi.Models.CommentDto;
 
 namespace NewsParserApi.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/[controller]")] 
     [ApiController]
     public class NewsController : ControllerBase
     {
@@ -36,7 +36,7 @@ namespace NewsParserApi.Controllers
         }
 
         [HttpGet("{id}")]
-        public ActionResult<NewsById> GetNewsById(int id)
+        public ActionResult<NewsVM> GetNewsById(int id)
         {
             string? currentUsername = null;
             if (User.Identity.IsAuthenticated)
@@ -49,28 +49,13 @@ namespace NewsParserApi.Controllers
             if (newsInDb == null)
                 return NotFound();
 
-            var newsVM = new NewsById()
-            {
-                Id = newsInDb.Id,
-                Title = newsInDb.Title,
-                Date = newsInDb.Date,
-                Text = newsInDb.Text,
-                ImageUrl = newsInDb.ImageUrl,
-                Url = newsInDb.Url,
-                LikesCount = newsInDb.LikeDislike.Count(ld => ld.isLike == true),
-                DislikesCount = newsInDb.LikeDislike.Count(ld => ld.isLike == false),
-                likedByCurrentUser = newsInDb.LikeDislike?.FirstOrDefault(x => x.Username == currentUsername)?.isLike,
-                Content = JsonSerializer.Deserialize<List<string>>(newsInDb.Content)
-            };
-
-            foreach (var comment in newsInDb.Comments)
-                newsVM.Comments.Add(new CommentVM(comment, currentUsername));
+            var newsVM = new NewsVM(newsInDb, currentUsername);
 
             return Ok(newsVM);
         }
 
         [HttpPost("{id}/likeDislike"), Authorize]
-        public ActionResult<NewsPreviewList> LikeNews(int id, bool? isLike)
+        public ActionResult<NewsPreviewList> LikeNews(int id, bool? isLike = null)
         {
             ClaimsPrincipal currentUser = this.User;
             var currentUsername = currentUser.FindFirst(ClaimTypes.Name).Value;
@@ -87,7 +72,7 @@ namespace NewsParserApi.Controllers
             }
             catch (ArgumentException ex)
             {
-                return BadRequest(ex.Message);
+                return Conflict(ex.Message);
             }
 
             var news = _newsRepository.GetByIdWithLikes(id, currentUsername);
@@ -96,35 +81,31 @@ namespace NewsParserApi.Controllers
         }
 
         [HttpPost("{id}/addComment"), Authorize]
-        public ActionResult addComment(int id, string commentText)
+        public ActionResult<NewsVM> addComment(int id, string commentText)
         {
             ClaimsPrincipal currentUser = this.User;
-            var currentUserName = currentUser.FindFirst(ClaimTypes.Name).Value;
+            var currentUsername = currentUser.FindFirst(ClaimTypes.Name).Value;
 
-            try
+            var newsInDb = _newsRepository.GetById(id);
+
+            if (newsInDb == null)
+                return NotFound("No news with this id");
+
+            Comment comment = new Comment()
             {
-                var newsInDb = _newsRepository.GetById(id);
+                NewsId = id,
+                Date = DateTime.Now,
+                Text = commentText,
+                Username = currentUsername
+            };
 
-                if (newsInDb == null)
-                    return NotFound("No news with this id");
+            _commentRepository.Add(comment);
+            _commentRepository.SaveChanges();
 
-                Comment comment = new Comment()
-                {
-                    NewsId = id,
-                    Date = DateTime.Now,
-                    Text = commentText,
-                    Username = currentUserName
-                };
 
-                _commentRepository.Add(comment);
-                _commentRepository.SaveChanges();
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            var newsVM = new NewsVM(_newsRepository.GetByIdWithIncludes(id), currentUsername);
 
-            return Ok();
+            return Ok(newsVM);
         }
 
         [HttpPost, Authorize]

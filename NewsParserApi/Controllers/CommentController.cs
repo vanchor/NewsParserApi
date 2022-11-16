@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using NewsParserApi.Entities;
+using NewsParserApi.Models.CommentDto;
 using NewsParserApi.Repositories.Interfaces;
 using System.Security.Claims;
 
@@ -19,59 +20,56 @@ namespace NewsParserApi.Controllers
         }
 
         [HttpPost("{id}/likeDislike"), Authorize]
-        public ActionResult LikeNews(int id, bool isLike)
+        public ActionResult<CommentVM> LikeComment(int id, bool isLike)
         {
             ClaimsPrincipal currentUser = this.User;
             var currentUserName = currentUser.FindFirst(ClaimTypes.Name).Value;
 
+            var newsInDb = _commentRepository.GetById(id);
+
+            if (newsInDb == null)
+                return NotFound("No comment with this id");
+
             try
             {
-                var newsInDb = _commentRepository.GetById(id);
-
-                if (newsInDb == null)
-                    return NotFound("No comment with this id");
-
                 _commentRepository.LikeComment(id, currentUserName, isLike);
                 _commentRepository.SaveChanges();
             }
             catch (ArgumentException ex)
             {
-                return BadRequest(ex.Message);
+                return Conflict(ex.Message);
             }
 
-            return Ok();
+            var response = new CommentVM(_commentRepository.getByIdWithIncludes(id), currentUserName);
+
+            return Ok(response);
         }
 
         [HttpPost("{id}/addComment"), Authorize]
-        public ActionResult AddComment(int id, string commentText)
+        public ActionResult<CommentVM> AddComment(int id, string commentText)
         {
             ClaimsPrincipal currentUser = this.User;
             var currentUserName = currentUser.FindFirst(ClaimTypes.Name).Value;
 
-            try
+            var commentInDb = _commentRepository.GetById(id);
+
+            if (commentInDb == null)
+                return NotFound("No comment with this id");
+
+            Comment comment = new Comment()
             {
-                var commentInDb = _commentRepository.GetById(id);
+                Date = DateTime.Now,
+                Text = commentText,
+                Username = currentUserName,
+                CommentId = commentInDb.Id
+            };
 
-                if (commentInDb == null)
-                    return NotFound("No comment with this id");
+            _commentRepository.Add(comment);
+            _commentRepository.SaveChanges();
 
-                Comment comment = new Comment()
-                {
-                    Date = DateTime.Now,
-                    Text = commentText,
-                    Username = currentUserName,
-                    CommentId = commentInDb.Id
-                };
+            var response = new CommentVM(_commentRepository.getByIdWithIncludes(id), currentUserName);
 
-                _commentRepository.Add(comment);
-                _commentRepository.SaveChanges();
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-
-            return Ok();
+            return Ok(response);
         }
     }
 }

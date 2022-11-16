@@ -5,6 +5,7 @@ using NewsParserApi.Entities;
 using NewsParserApi.Models.UserDto;
 using NewsParserApi.Services;
 using System.Security.Claims;
+using System.Net;
 
 namespace NewsParserApi.Controllers
 {
@@ -19,25 +20,38 @@ namespace NewsParserApi.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<ActionResult<AuthenticateResponse>> Register(UserModel request)
+        public async Task<ActionResult<AuthenticateResponse>> Register([FromBody] UserModel request)
         {
             var response = await _userService.Register(request);
 
-            if (response.StatusCode != System.Net.HttpStatusCode.OK)
-                return BadRequest(new { message = response.Description });
+            switch (response.StatusCode)
+            {
+                case HttpStatusCode.OK:
+                    return response.Data;
+                case HttpStatusCode.Conflict:
+                    return Conflict(response.Description);
+                case HttpStatusCode.UnprocessableEntity:
+                    return UnprocessableEntity(response.Description);
+                default:
+                    return BadRequest(response.Description);
+            }
 
-            return response.Data;
         }
 
         [HttpPost("login")]
-        public async Task<ActionResult<AuthenticateResponse>> Login(AuthenticateRequest request)
+        public async Task<ActionResult<AuthenticateResponse>> Login([FromBody] AuthenticateRequest request)
         {
             var response = _userService.Authenticate(request);
 
-            if (response.StatusCode != System.Net.HttpStatusCode.OK)
-                return BadRequest(new { message = response.Description });
-
-            return response.Data;
+            switch (response.StatusCode)
+            {
+                case HttpStatusCode.OK:
+                    return response.Data;
+                case HttpStatusCode.UnprocessableEntity:
+                    return UnprocessableEntity(response.Description);
+                default:
+                    return BadRequest(response.Description);
+            }
         }
 
         [HttpGet("Test"), Authorize]

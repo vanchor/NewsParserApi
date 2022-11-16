@@ -19,7 +19,7 @@ namespace NewsParserApi.Helpers
             };
 
             var key = new SymmetricSecurityKey(
-                System.Text.Encoding.UTF8.GetBytes(configuration.GetSection("AppSettings:Token").Value));
+                Encoding.UTF8.GetBytes(configuration.GetSection("AppSettings:Token").Value));
 
             var cred = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
 

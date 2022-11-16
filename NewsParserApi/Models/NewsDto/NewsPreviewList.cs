@@ -9,8 +9,8 @@
         public string? ImageUrl { get; set; }
         public string Url { get; set; }
 
-        public int LikesCount { get; set; }
-        public int DislikesCount { get; set; }
+        public int LikesCount { get; set; } = 0;
+        public int DislikesCount { get; set; } = 0;
 
         public bool? likedByCurrentUser { get; set; } = null;
     }
